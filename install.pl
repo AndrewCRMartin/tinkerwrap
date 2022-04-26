@@ -198,6 +198,7 @@ sub BuildTinker
 sub InstallPrograms
 {
     util::RunCommand("cp RunTinker.pl config.pm $config::tinkerRoot");
+    util::RunCommand("(cd $config::tinkerRoot; ln -sf RunTinker.pl RunTinker");
 }
 
 #*************************************************************************
