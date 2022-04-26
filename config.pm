@@ -8,6 +8,7 @@ use strict;
 #        where you run this. If you wish to install elsewhere, change    *
 #        this variable                                                   *
 $config::tinkerRoot=`pwd`;
+#$config::tinkerRoot="/usr/local/apps/tinker";
 #
 #*************************************************************************
 #                                                                        *
@@ -16,12 +17,12 @@ $config::tinkerRoot=`pwd`;
 #*************************************************************************
 chomp $config::tinkerRoot;
 # Location of data and binary files
-$config::bindir = "$config::tinkerRoot/bin";
-$config::dataDir="$config::tinkerRoot/DATA";
+$config::bindir  = "$config::tinkerRoot/bin";
+$config::dataDir = "$config::tinkerRoot/DATA";
 
 # Tinker parameter sets
-$config::tinkerParamDir="$config::dataDir/tinkerParams";       
 # We will use amber99 by default
-$config::tinkerParams="amber99";                               
-$config::tinkerParamFile="$config::tinkerParamDir/$config::tinkerParams";
+$config::tinkerParams    = "amber99";                               
+$config::tinkerParamDir  = "$config::dataDir/tinkerParams";       
+$config::tinkerParamFile = "$config::tinkerParamDir/$config::tinkerParams";
 

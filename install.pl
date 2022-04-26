@@ -4,8 +4,8 @@
 #   Program:    tinker
 #   File:       install.pl
 #   
-#   Version:    V1.20
-#   Date:       11.12.17
+#   Version:    V1.0
+#   Date:       26.04.22
 #   Function:   Installation script for Tinker
 #   
 #   Copyright:  (c) UCL, Prof. Andrew C. R. Martin, 2022
@@ -43,6 +43,8 @@
 #   ======
 #   ./install.pl [-tinker=x.y.z]
 #
+#   Alter config.pm if you wish to install elsewhere
+#
 #*************************************************************************
 #
 #   Revision History:
@@ -56,9 +58,6 @@ use Cwd qw(abs_path);
 # Add the path of the executable to the library path
 use FindBin;
 use lib $FindBin::Bin;
-# Or if we have a bin directory and a lib directory
-#use FindBin;
-#use lib abs_path("$FindBin::Bin/../lib");
 use config;
 use util;
 
@@ -66,18 +65,19 @@ UsageDie() if(defined($::h));
 
 my $tinkerVersion = (defined($::tinker)?$::tinker:"7.1.3");
 
-# Check librarues and includes
-if(!LibAndIncludeOK())
+# Check binaries, libraries and includes
+if(!BinLibIncludeOK())
 {
     print <<__EOF;
 
-Installation aborting. You must install libxml2 development libraries first:
+Installation aborting. You must install wget, compilers and libxml2 
+development libraries first:
 
 CentOS/Fedora (as root):
-   yum install libxml2 libxml2-devel
+   yum install wget gcc gfortran libxml2 libxml2-devel
 
 Ubuntu:
-   sudo apt-get install libxml2 libxml2-dev
+   sudo apt-get wget gcc gfortran install libxml2 libxml2-dev
 
 __EOF
     exit 1;
@@ -132,11 +132,12 @@ __EOF
 #  -------------------------
 #  Print information about the Tinker licence
 #
-#  28.09.15 Original   By: ACRM
+#  26.04.22 Original   By: ACRM
 #
 sub PrintTinkerLicence
 {
     my($copyFile) = @_;
+
     if($copyFile)
     {
         util::RunCommand("cp TinkerLicence.pdf $config::tinkerRoot");
@@ -185,24 +186,18 @@ sub BuildTinker
     {
         Die("\nabYmod install failed. Tinker minimization package files were not installed.\n\n")
     }
-
 }
 
 
 #*************************************************************************
 #> void InstallPrograms()
 #  ----------------------
-#  Installs all programs and data required by them
+#  Installs all programs 
 #
-#  19.09.13  Original  By: ACRM
-#  15.09.15  Now copies static data files from STATICDATA instead of
-#            from DATA
-#  01.10.15  Added $dataOnly parameter
-#  30.10.15  Moved copying of data outside check on directory
-#  14.12.16  Added chmod to ensure all data files are readable
+#  26.04.22  Original  By: ACRM
 sub InstallPrograms
 {
-    util::RunCommand("cp -p *.pl *.pm INSTALL.md $config::tinkerRoot");
+    util::RunCommand("cp RunTinker.pl config.pm $config::tinkerRoot");
 }
 
 #*************************************************************************
@@ -226,8 +221,14 @@ sub BuildPackages
                        $config::bindir,                   # Destination binary directory
                        "",                                # Data directory
                        "");                               # Destination data directory
-}
 
+    util::BuildPackage("./packages/pdbrenum_V2.0.tgz",    # Package file
+                       "",                                # Subdir containing src
+                       \["pdbrenum"],                     # Generated executable
+                       $config::bindir,                   # Destination binary directory
+                       "",                                # Data directory
+                       "");                               # Destination data directory
+}
 
 
 #*************************************************************************
@@ -235,10 +236,9 @@ sub BuildPackages
 #  ----------------
 #  Create installation directories
 #
-#  19.09.13  Original  By: ACRM
+#  26.04.22  Original  By: ACRM
 sub CreateDirs
 {
-
     util::RunCommand("mkdir -p $config::bindir");
 }
 
@@ -259,7 +259,8 @@ Usage: install.pl [-tinker=x.y.z]
 
 install.pl installs tinker and scripts to make it easy to use
 
-      !!!  YOU MUST EDIT config.pm BEFORE USING THIS SCRIPT  !!!
+By default, Tinker will be installed in the current directory.
+Edit config.pm if you wish to install elsewhere.
 
 __EOF
 
@@ -311,16 +312,16 @@ sub DestinationOK
 
 
 #*************************************************************************
-#> BOOL LibAndIncludeOK()
+#> BOOL BinLibIncludeOK()
 #  ----------------------
 #  Returns:   Found?
 #  
 #  Checks for the presence of the libxml2 library and its include files
-#  Check for required executables
+#  Checks for required executables
 #
-#  13.09.16  Original   By: ACRM
+#  26.04.22  Original   By: ACRM
 #
-sub LibAndIncludeOK
+sub BinLibIncludeOK
 {
     my @exes = ("wget", "gcc", "gfortran");
     my @dirs = ("/usr/bin", "/bin");
