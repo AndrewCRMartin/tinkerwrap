@@ -1,0 +1,22 @@
+package config;
+use strict;
+#*************************************************************************
+#                                                                        *
+#        Root directory for abYmod - you need to change this             *
+#        to wherever you wish to install abymod                          *
+#    *** NOTE TO DEVELOPERS *** THIS MUST NOT BE CHANGED IN GIT ***      *
+$config::tinkerRoot=`pwd`;
+#
+#*************************************************************************
+#                                                                        *
+#          You shouldn't need to change anything below here              *
+#                                                                        *
+#*************************************************************************
+chomp $config::abymodRoot;
+# Location of data and binary files
+$config::dataDir="$config::tinkerRoot/DATA";
+# Tinker energy minimization
+$config::tinkerParamDir="$config::dataDir/tinkerParams";       # Tinker parameter sets
+$config::tinkerParams="amber99";                               # We will use amber99
+$config::tinkerParamFile="$config::tinkerParamDir/$config::tinkerParams";
+
