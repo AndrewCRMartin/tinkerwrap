@@ -97,14 +97,14 @@ __EOF
 # Create the installation directories and build the C programs
 CreateDirs();
 BuildPackages();
-InstallTinker($tinkerVersion);
+BuildTinker($tinkerVersion);
 
 my $pwd = `pwd`;
 chomp $pwd;
 $pwd =~ s/\/$//;
 $pwd = abs_path($pwd);
 
-my $rd = $config::abymodRoot;
+my $rd = $config::tinkerRoot;
 chomp $rd;
 $rd =~ s/\/$//;
 $rd = abs_path($rd);
@@ -113,21 +113,19 @@ $rd = abs_path($rd);
 # then install the programs and data
 if($pwd ne $rd)
 {
-    InstallPrograms(0);
+    InstallPrograms();
+    PrintTinkerLicence(1);
 }
 else
 {
-    InstallPrograms(1);
-
     print STDERR <<__EOF;
 
 Programs not installed as source and destination directories are the
 same. i.e. You are trying to install to the current directory
 
 __EOF
+    PrintTinkerLicence(0);
 }
-
-PrintTinkerLicence();
 
 #*************************************************************************
 #> void PrintTinkerLicence()
@@ -138,7 +136,11 @@ PrintTinkerLicence();
 #
 sub PrintTinkerLicence
 {
-    util::RunCommand("cp TinkerLicence.pdf $config::abymodRoot");
+    my($copyFile) = @_;
+    if($copyFile)
+    {
+        util::RunCommand("cp TinkerLicence.pdf $config::tinkerRoot");
+    }
 
     print <<__EOF;
 
@@ -148,8 +150,8 @@ which is (c) Jay William Ponder, Department of Chemistry, Washington
 University in Saint Louis, which has been downloadedfrom Ponder\'s web site
 during the install.
 
-This is free software, but you should complete the 'TinkerLicence.pdf' 
-file and return it to WUSTL.
+This is free software, but you should complete the Tinker licence
+file ($config::tinkerRoot/TinkerLicence.pdf) and return it to WUSTL.
 **************************************************************************
 
 __EOF
@@ -157,20 +159,20 @@ __EOF
 
 
 #*************************************************************************
-#> void InstallTinker()
+#> void BuildTinker()
 #  --------------------
 #  Installs the Tinker Molecular Mechanics software
 #
 #  19.09.13  Original  By: ACRM
 #  13.09.16  Added check that Tinker binaries were installed
-sub InstallTinker
+sub BuildTinker
 {
     my($version) = @_;
 
     if(!( -d "./tinker") || (!( -f "./tinker/bin/minimize")))
     {
         print STDERR "\n*** Building Tinker V$version - this will take a while! ***\n\n";
-        util::RunCommand("./optimization/InstallTinker.sh $version", 1);
+        util::RunCommand("./BuildTinker.sh $version", 1);
     }
 
     util::RunCommand("cp tinker/bin/* $config::bindir");
@@ -200,27 +202,7 @@ sub InstallTinker
 #  14.12.16  Added chmod to ensure all data files are readable
 sub InstallPrograms
 {
-    my($dataOnly) = @_;
-
-    if(!$dataOnly)
-    {
-        util::RunCommand("cp -p *.pl *.pm INSTALL.md $config::abymodRoot");
-    }
-
-    my $dir=util::GetDir($config::scOrderFile);
-    if(! -d $dir)
-    {
-        `mkdir -p $dir`;
-    }
-    util::RunCommand("cp -p STATICDATA/sc/* $dir");
-
-    $dir=util::GetDir($config::mdmFile);
-    if(! -d $dir)
-    {
-        `mkdir -p $dir`;
-    }
-    util::RunCommand("cp -p STATICDATA/mdm/* $dir");
-    util::RunCommand("chmod -R a+r $dir");
+    util::RunCommand("cp -p *.pl *.pm INSTALL.md $config::tinkerRoot");
 }
 
 #*************************************************************************
@@ -256,7 +238,7 @@ sub BuildPackages
 #  19.09.13  Original  By: ACRM
 sub CreateDirs
 {
-    my $dir;
+
     util::RunCommand("mkdir -p $config::bindir");
 }
 
@@ -306,7 +288,7 @@ sub DestinationOK
     # Try to create it if is doesn't exist
     if(! -d $config::tinkerRoot)
     {
-        system("mkdir $config::tinkerRoot 2>/dev/null");
+        system("mkdir -p $config::tinkerRoot 2>/dev/null");
     }
     # Fail if it doesn't exist
     if(! -d $config::tinkerRoot)
@@ -334,18 +316,28 @@ sub DestinationOK
 #  Returns:   Found?
 #  
 #  Checks for the presence of the libxml2 library and its include files
+#  Check for required executables
 #
 #  13.09.16  Original   By: ACRM
 #
 sub LibAndIncludeOK
 {
+    my @exes = ("wget", "gcc", "gfortran");
+    my @dirs = ("/usr/bin", "/bin");
+    
     print "\nChecking that libxml2 is installed...";
     if(util::CheckLibrary("libxml2.so") &&
        util::CheckInclude("libxml/parser.h") &&
        util::CheckInclude("libxml/tree.h"))
     {
-        print "OK\n\n";
-        return(1);
+        print "OK\n";
+
+        print "Checking that @exes are installed...";
+        if(util::CheckFilesExistInDirs(\@exes, \@dirs))
+        {
+            print "OK\n\n";
+            return(1);
+        }
     }
 
     return(0);

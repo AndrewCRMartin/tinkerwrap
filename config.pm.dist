@@ -12,8 +12,9 @@ $config::tinkerRoot=`pwd`;
 #          You shouldn't need to change anything below here              *
 #                                                                        *
 #*************************************************************************
-chomp $config::abymodRoot;
+chomp $config::tinkerRoot;
 # Location of data and binary files
+$config::bindir = "$config::tinkerRoot/bin";
 $config::dataDir="$config::tinkerRoot/DATA";
 # Tinker energy minimization
 $config::tinkerParamDir="$config::dataDir/tinkerParams";       # Tinker parameter sets
