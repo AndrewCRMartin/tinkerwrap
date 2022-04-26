@@ -2,9 +2,11 @@ package config;
 use strict;
 #*************************************************************************
 #                                                                        *
-#        Root directory for abYmod - you need to change this             *
-#        to wherever you wish to install abymod                          *
-#    *** NOTE TO DEVELOPERS *** THIS MUST NOT BE CHANGED IN GIT ***      *
+#        Root directory for Tinker install                               *
+#                                                                        *
+#        By default, Tinker will be installed within the directory       *
+#        where you run this. If you wish to install elsewhere, change    *
+#        this variable                                                   *
 $config::tinkerRoot=`pwd`;
 #
 #*************************************************************************
@@ -16,8 +18,10 @@ chomp $config::tinkerRoot;
 # Location of data and binary files
 $config::bindir = "$config::tinkerRoot/bin";
 $config::dataDir="$config::tinkerRoot/DATA";
-# Tinker energy minimization
-$config::tinkerParamDir="$config::dataDir/tinkerParams";       # Tinker parameter sets
-$config::tinkerParams="amber99";                               # We will use amber99
+
+# Tinker parameter sets
+$config::tinkerParamDir="$config::dataDir/tinkerParams";       
+# We will use amber99 by default
+$config::tinkerParams="amber99";                               
 $config::tinkerParamFile="$config::tinkerParamDir/$config::tinkerParams";
 
