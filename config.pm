@@ -7,8 +7,8 @@ use strict;
 #        By default, Tinker will be installed within the directory       *
 #        where you run this. If you wish to install elsewhere, change    *
 #        this variable                                                   *
-$config::tinkerRoot=`pwd`;
-#$config::tinkerRoot="/usr/local/apps/tinker";
+#$config::tinkerRoot=`pwd`;
+$config::tinkerRoot="/usr/local/apps/tinker";
 #
 #*************************************************************************
 #                                                                        *
